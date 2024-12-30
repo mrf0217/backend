@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- <link rel="stylesheet" href="/style.css"> Link to optional CSS -->
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    <!-- Didonor Table -->
+    <h2>Didonor Table</h2>
+    <table id="didonorTable" border="1">
+        <thead>
+            <tr>
+                <th>ID 
+                    <button onclick="sortTable('didonorTable', 0, true, true)">▲</button>
+                    <button onclick="sortTable('didonorTable', 0, true, false)">▼</button>
+                </th>
+                <th>Nama</th>
+                <th>Butuh Golongan Darah</th>
+                <th>Lokasi 
+                    <button onclick="sortTable('didonorTable', 4, false, true)">▲</button>
+                    <button onclick="sortTable('didonorTable', 4, false, false)">▼</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="didonorBody">
+            <!-- Dynamic rows will be added here by JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Pendonor Table -->
+    <h2>Pendonor Table</h2>
+    <table id="pendonorTable" border="1">
+        <thead>
+            <tr>
+                <th>ID 
+                    <button onclick="sortTable('pendonorTable', 0, true, true)">▲</button>
+                    <button onclick="sortTable('pendonorTable', 0, true, false)">▼</button>
+                </th>
+                <th>Name</th>
+                <th>Golongan Darah</th>
+                <th>Lokasi 
+                    <button onclick="sortTable('pendonorTable', 4, false, true)">▲</button>
+                    <button onclick="sortTable('pendonorTable', 4, false, false)">▼</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="pendonorBody">
+            <!-- Dynamic rows will be added here by JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Back to Login Button -->
+    <form action="/login" method="GET">
+        <button type="submit">Back to Login</button>
+    </form>
+
+    <!-- Include the external JavaScript -->
+    <script src="/js/dashboard.js"></script>
+    <script>
+        // Fetch Didonor and Pendonor data from the server
+        async function fetchData() {
+            try {
+                // Fetch Didonor data
+                const didonorResponse = await fetch('/api/didonor');
+                const didonorData = await didonorResponse.json();
+                populateTable('didonorBody', didonorData);
+
+                // Fetch Pendonor data
+                const pendonorResponse = await fetch('/api/pendonor');
+                const pendonorData = await pendonorResponse.json();
+                populateTable('pendonorBody', pendonorData);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        // Populate table dynamically
+        function populateTable(tableId, data) {
+            const tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = ''; // Clear existing content
+        
+            data.forEach(item => {
+                let row = `
+                    <tr>
+                        <td>${item.id}</td>
+                `;
+        
+                // Check if the table is 'didonorBody' to make 'nama' clickable
+                if (tableId === 'didonorBody') {
+                    row += `<td><a href="/donate.html?id=${item.id}">${item.nama}</a></td>`;
+                    row += `<td>${item.butuh_golongan_darah}</td>`;
+                } else if (tableId === 'pendonorBody') {
+                    row += `<td>${item.name}</td>`;
+                    row += `<td>${item.golongan_darah}</td>`;
+                }
+        
+                row += `<td>${item.lokasi}</td>
+                <td>
+                    ${
+                        item.darah_sudah_di_terima === 'belum'
+                            ? `<button onclick="donateBlood(${item.id})">Donate Blood</button>`
+                            : '<span>Already Donated</span>'
+                    }
+                </td>
+            </tr>`;
+                
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+        
+        async function donateBlood(id) {
+            try {
+                const response = await fetch('/api/donate-blood', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id }), // Ensure the id is passed correctly
+                });
+        
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`Server responded with error: ${error}`);
+                }
+        
+                const data = await response.text();
+                alert(data); // Show success message from the server
+                fetchData(); // Refresh the data to reflect updates
+            } catch (error) {
+                console.error("Error donating blood:", error);
+                alert(`Failed to donate blood: ${error.message}`);
+            }
+        }
+        
+
+        // Call fetchData when the page loads
+        fetchData();
+    </script>
+</body>
+</html>

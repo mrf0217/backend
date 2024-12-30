@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didonor Login</title>
+</head>
+<body>
+    <h2>Didonor Login</h2>
+    <form action="/login" method="POST">
+        <label for="nama">Nama:</label><br>
+        <input type="text" id="nama" name="nama" required><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <br>
+    <!-- Navigation Buttons -->
+    <h3>Navigate:</h3>
+    <form action="/" method="GET">
+        <button type="submit">Didonor Register</button>
+    </form>
+    <form action="/pendonor/login" method="GET">
+        <button type="submit">Pendonor Login</button>
+    </form>
+    <form action="/pendonor/register" method="GET">
+        <button type="submit">Pendonor Register</button>
+    </form>
+</body>
+</html>
